@@ -1,8 +1,54 @@
+import { ChangeEvent, useState } from 'react';
 import logo from './assets/logo-nlw-expert.svg'
 import { NewNoteCard } from './components/new-note-card'
 import { NoteCard } from './components/note-card'
 
+interface Note {
+  id: string;
+  date: Date;
+  content: string;
+}
+
 export function App() {
+
+  const [ search, setSearch ] = useState('');
+  
+  const [ notes, setNotes ] = useState<Note[]>(() => {
+    const notesOnStorage = localStorage.getItem('@nlw-expert:notes');
+
+    if (notesOnStorage) {
+      return JSON.parse(notesOnStorage)
+    }
+
+    return []
+
+  });
+
+  function onNoteCreated(content: string) {
+    const newNote = {
+      id: crypto.randomUUID(),
+      date: new Date(),
+      content
+    }
+
+    const notesArray = [newNote, ...notes]
+
+    setNotes(notesArray)
+
+    localStorage.setItem('@nlw-expert:notes', JSON.stringify(notesArray))
+  }
+
+  function handleSearch(event: ChangeEvent<HTMLInputElement>) {
+    const query = event.target.value;
+
+    setSearch(query);
+  }
+
+  const filteredNotes = search === '' 
+    ? notes
+    : notes.filter(note => note.content.toLowerCase().includes(search.toLowerCase()))
+
+
   return (
     <div className="container mx-auto max-w-6xl my-12 space-y-6">
       <img src={logo} alt="Logo for NLW Expert" />
@@ -11,7 +57,8 @@ export function App() {
         <input 
           type="text" 
           placeholder='Busque em suas notas...'
-          className='w-full bg-transparent text-3xl font-semibold tracking-tight placeholder:text-slate-500 outline-none'  
+          className='w-full bg-transparent text-3xl font-semibold tracking-tight placeholder:text-slate-500 outline-none'
+          onChange={handleSearch}
         />
       </form>
 
@@ -19,14 +66,13 @@ export function App() {
 
       <div className="grid grid-cols-3 auto-rows-[250px] gap-6">
         
-        <NewNoteCard />
+        <NewNoteCard onNoteCreated={onNoteCreated} />
 
-        <NoteCard note={
-          {
-            date: new Date(),
-            content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod, quibusdam.'
-          }
-        } />
+        {
+          filteredNotes.map(note => (
+            <NoteCard key={note.id} note={note} />
+          ))
+        }
       
         
       </div>
