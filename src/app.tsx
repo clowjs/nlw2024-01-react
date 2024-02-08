@@ -21,14 +21,12 @@ export function App() {
         
         <NewNoteCard />
 
-        <NoteCard />
-        <NoteCard />
-        <NoteCard />
-        <NoteCard />
-        <NoteCard />
-        <NoteCard />
-        <NoteCard />
-        <NoteCard />
+        <NoteCard note={
+          {
+            date: new Date(),
+            content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod, quibusdam.'
+          }
+        } />
       
         
       </div>
